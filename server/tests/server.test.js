@@ -4,12 +4,11 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const { User } = require('./../models/user');
 const { todos, populateTodos, users, populateUsers } = require('./seed/seed');
 
 beforeEach(populateUsers);
 beforeEach(populateTodos);
-
-
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -165,3 +164,40 @@ describe('PATCH /todos/:id', () => {
             .end(done);
     })
 })
+
+describe('GET /users/me', () => {
+    it('should return user if authenticated', (done) => {
+        request(app)
+            .get('/users/me')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body._id).toBe(users[0]._id.toHexString());
+                expect(res.body.email).toBe(users[0].email);
+            })
+            .end(done);
+    });
+
+    // it('should return 401 if not authenticated', (done) => {
+
+    // });
+
+});
+
+// describe('DELETE /users/me/token', () => {
+//     it('should remove auth token on logout', (done) => {
+//         request(app)
+//             .delete('/users/me/token')
+//             .set('x-auth', users[0].tokens[0].token)
+//             .expect(200)
+//             .end((err, res) => {
+//                 if (err) {
+//                     return done(err);
+//                 }
+//                 User.findById(users[0]._id).then((user) => {
+//                     expect(user.tokens.length).toBe(0)
+//                     done();
+//                 }).catch((e) => done(e));
+//             });
+//     });
+// });
