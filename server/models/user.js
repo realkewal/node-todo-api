@@ -12,6 +12,7 @@ var UserSchema = new mongoose.Schema({
         minlength: 1,
         unique: true,
         validate: {
+            isAsync: true,
             validator: (value) => {
                 return validator.isEmail(value);
             },
@@ -49,11 +50,9 @@ UserSchema.methods.generateAuthToken = function() {
     var access = 'auth';
     var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-    user.tokens.push({access, token});
+    user.tokens = user.tokens.concat([{ access, token }]);
 
-    return user.save().then(() => {
-        return token();
-    });
+    return user.save().then(() => token);
 };
 
 UserSchema.methods.removeToken = function (token) {
