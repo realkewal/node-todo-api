@@ -51,7 +51,9 @@ UserSchema.methods.generateAuthToken = function() {
 
     user.tokens.push({access, token});
 
-    return user.save().then(() => token);
+    return user.save().then(() => {
+        return token();
+    });
 };
 
 UserSchema.methods.removeToken = function (token) {
