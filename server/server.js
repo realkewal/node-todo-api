@@ -103,10 +103,7 @@ app.post('/users', (req, res) => {
     });
 });
 
-
-
 app.get('/users/me', authenticate, (req, res) => {
-    var token = req.header('x-auth');
     res.send(req.user);
 });
 
