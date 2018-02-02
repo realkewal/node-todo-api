@@ -194,7 +194,6 @@ describe('POST /users', () => {
 
         var email = 'johndoe@example.com';
         var password = '123abc!';
-        console.log(request(app).post('/users'));
         request(app)
             .post('/users')
             .send({email, password})
@@ -212,7 +211,7 @@ describe('POST /users', () => {
                     expect(user).not.toBe(null);
                     expect(user.password).not.toBe(password);
                     done();
-                });
+                }).catch((e) => done(e));
             });
     });
 
@@ -238,3 +237,32 @@ describe('POST /users', () => {
             .end(done);
     });
 });
+
+describe('POST /users/login', () => {
+    it('should login user and return auth token', () => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: users[1].password
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toBeDefined();
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                User.findById(users[1]._id).then((user) => {
+                    expect(user.tokens[0]).toEqual(expect.objectContaining({
+                        access: 'auth',
+                        token: res.headers['x-auth']
+                    }))
+                })
+            });
+    });
+
+    
+});
+
